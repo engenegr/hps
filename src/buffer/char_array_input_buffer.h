@@ -11,7 +11,9 @@ class CharArrayInputBuffer {
   CharArrayInputBuffer(const char* arr) : arr(arr) { pos = 0; }
 
   void read(char* content, size_t length) {
-    strncpy(content, &arr[pos], length);
+    //strncpy(content, &arr[pos], length);
+    //strncpy(dest, source, 7)
+    std::copy(arr+pos, arr+pos+length, content);
     pos += length;
   }
 
