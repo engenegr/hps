@@ -17,11 +17,22 @@ TEST(HpsTest, ToAndFromString) {
   EXPECT_EQ(input, output);
 }
 
-TEST(HpsTest, FromCharArray) {
-  const double input = 1.1;
+TEST(HpsTest, DoubleFromCharArray) {
+  const double input = 101325.10984;
   std::string str = hps::to_string(input);
   const double output = hps::from_char_array<double>(str.data());
   EXPECT_EQ(input, output);
+}
+
+TEST(HpsTest, DoubleVectorFromCharArray) {
+  std::vector<double> input;
+  const int n_elems = 1 << 25;
+  input.resize(n_elems);
+  for (int i = 0; i < n_elems; i++) input[i] = 101325.0;
+  const std::string str = hps::to_string(input);
+  std::vector<double> output = hps::from_char_array<std::vector<double>>(str.data());
+  EXPECT_EQ(input.size(), output.size());
+  for (int i = 0; i < 10; i++) EXPECT_EQ(input[i], output[i]);
 }
 
 TEST(HpsLargeTest, LargeIntVectorToAndFromString) {
@@ -39,7 +50,7 @@ TEST(HpsLargeTest, LargeDoubleVectorToAndFromString) {
   std::vector<double> input;
   const int n_elems = 1 << 25;
   input.resize(n_elems);
-  for (int i = 0; i < n_elems; i++) input[i] = i;
+  for (int i = 0; i < n_elems; i++) input[i] = 101325.10984;
   const std::string str = hps::to_string(input);
   std::vector<double> output = hps::from_string<std::vector<double>>(str);
   EXPECT_EQ(input.size(), output.size());
