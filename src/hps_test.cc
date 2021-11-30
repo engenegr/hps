@@ -1,4 +1,5 @@
 #include "hps.h"
+#include <float.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
@@ -10,6 +11,17 @@ TEST(HpsTest, ToAndFromStream) {
   EXPECT_EQ(input, output);
 }
 
+TEST(HpsTest, DoubleVectorToAndFromStream) {
+  std::vector<double> input;
+  const int n_elems = 1 << 25;
+  input.resize(n_elems);
+  for (int i = 0; i < n_elems; i++) input[i] = -DBL_MAX;
+  std::stringstream ss;
+  hps::to_stream(input, ss);
+  std::vector<double> output = hps::from_stream<std::vector<double>>(ss);
+  EXPECT_EQ(input, output);
+}
+
 TEST(HpsTest, ToAndFromString) {
   const double input = 1.1;
   std::string str = hps::to_string(input);
@@ -18,7 +30,7 @@ TEST(HpsTest, ToAndFromString) {
 }
 
 TEST(HpsTest, DoubleFromCharArray) {
-  const double input = 101325.10984;
+  const double input = DBL_MAX;
   std::string str = hps::to_string(input);
   const double output = hps::from_char_array<double>(str.data());
   EXPECT_EQ(input, output);
@@ -26,13 +38,13 @@ TEST(HpsTest, DoubleFromCharArray) {
 
 TEST(HpsTest, DoubleVectorFromCharArray) {
   std::vector<double> input;
-  const int n_elems = 1 << 25;
+  const int n_elems = 1e6;
   input.resize(n_elems);
-  for (int i = 0; i < n_elems; i++) input[i] = 101325.0;
+  for (int i = 0; i < n_elems; i++) input[i] = DBL_MAX;
   const std::string str = hps::to_string(input);
-  std::vector<double> output = hps::from_char_array<std::vector<double>>(str.data());
+  std::vector<double> output = hps::from_char_array<std::vector<double>>(str.c_str());
   EXPECT_EQ(input.size(), output.size());
-  for (int i = 0; i < 10; i++) EXPECT_EQ(input[i], output[i]);
+  for (int i = 0; i < n_elems; i++) EXPECT_EQ(input[i], output[i]);
 }
 
 TEST(HpsLargeTest, LargeIntVectorToAndFromString) {
@@ -50,7 +62,7 @@ TEST(HpsLargeTest, LargeDoubleVectorToAndFromString) {
   std::vector<double> input;
   const int n_elems = 1 << 25;
   input.resize(n_elems);
-  for (int i = 0; i < n_elems; i++) input[i] = 101325.10984;
+  for (int i = 0; i < n_elems; i++) input[i] = DBL_MAX;
   const std::string str = hps::to_string(input);
   std::vector<double> output = hps::from_string<std::vector<double>>(str);
   EXPECT_EQ(input.size(), output.size());
@@ -69,7 +81,7 @@ TEST(HpsLargeTest, LargeStringVectorToAndFromString) {
 }
 
 TEST(HpsLargeTest, RepeatedToAndFromString) {
-  const std::vector<double> input(1 << 11, 3.3);
+  const std::vector<double> input(1 << 25, 1012343534.3);
   std::vector<double> output;
   for (size_t i = 0; i < 1 << 18; i++) {
     const std::string str = hps::to_string(input);
@@ -118,25 +130,38 @@ class Serializer<CustomType, B> {
 TEST(HpsTest, CustomType) {
   CustomType input;
   input.num = 3;
-  input.vec.push_back(2.2);
-  input.vec.push_back(-4.4);
+  input.vec.push_back(DBL_MAX);
+  input.vec.push_back(-DBL_MAX);
   input.set_str("aa");
   const std::string& str = hps::to_string(input);
   const CustomType& output = hps::from_string<CustomType>(str);
   EXPECT_EQ(output.num, input.num);
-  EXPECT_THAT(output.vec, testing::ElementsAre(2.2, -4.4));
+  EXPECT_THAT(output.vec, testing::ElementsAre(DBL_MAX, -DBL_MAX));
+  EXPECT_EQ(output.get_str(), "aa");
+}
+
+TEST(HpsTest, CustomTypeFromChar) {
+  CustomType input;
+  input.num = 3;
+  input.vec.push_back(DBL_MAX);
+  input.vec.push_back(-DBL_MAX);
+  input.set_str("aa");
+  const std::string& str = hps::to_string(input);
+  const CustomType& output = hps::from_char_array<CustomType>(str.data());
+  EXPECT_EQ(output.num, input.num);
+  EXPECT_THAT(output.vec, testing::ElementsAre(DBL_MAX, -DBL_MAX));
   EXPECT_EQ(output.get_str(), "aa");
 }
 
 TEST(HpsTest, CustomTypeVector) {
   std::vector<CustomType> input(1);
   input[0].num = 3;
-  input[0].vec.push_back(2.2);
-  input[0].vec.push_back(-4.4);
+  input[0].vec.push_back(DBL_MAX);
+  input[0].vec.push_back(-DBL_MAX);
   input[0].set_str("aa");
   const std::string& str = hps::to_string(input);
   const std::vector<CustomType>& output = hps::from_string<std::vector<CustomType>>(str);
   EXPECT_EQ(output[0].num, 3);
-  EXPECT_THAT(output[0].vec, testing::ElementsAre(2.2, -4.4));
+  EXPECT_THAT(output[0].vec, testing::ElementsAre(DBL_MAX, -DBL_MAX));
   EXPECT_EQ(output[0].get_str(), "aa");
 }

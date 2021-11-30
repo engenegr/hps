@@ -4,7 +4,10 @@
 #include "../src/hps.h"
 
 int main() {
-  std::vector<double> data({373.15, 101325.0});
+  std::vector<double> data;
+  const int n_elems = 1e6;
+  data.resize(n_elems);
+  for (int i = 0; i < n_elems; i++) data[i] = 1.111111111; //1.1;
 
   std::ofstream out_file("data.log", std::ofstream::binary);
   std::ifstream in_file("data.log", std::ifstream::binary);
@@ -24,6 +27,7 @@ int main() {
 
   parsed = hps::from_char_array<std::vector<double>>(serialized.c_str());
   assert(parsed == data);
+  std::cout << parsed[0] << " " << data[0] << std::endl;
 
   std::cout << "size (B): " << serialized_size << std::endl;
   std::cout << "string size (B): " << serialized.size() << std::endl;

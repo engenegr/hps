@@ -3,6 +3,7 @@
 
 #include <cstring>
 #include <iostream>
+#include <limits>
 #include "../serializer.h"
 
 namespace hps {
@@ -11,7 +12,11 @@ constexpr size_t STREAM_OUTPUT_BUFFER_SIZE = 1 << 16;
 
 class StreamOutputBuffer {
  public:
-  StreamOutputBuffer(std::ostream& stream) : stream(&stream) { pos = 0; }
+  StreamOutputBuffer(std::ostream& stream) : stream(&stream)
+  {
+    stream.precision(std::numeric_limits<long double>::digits10 + 1);
+    pos = 0;
+  }
 
   void write(const char* content, size_t length) {
     if (pos + length > STREAM_OUTPUT_BUFFER_SIZE) {

@@ -3,6 +3,7 @@
 
 #include <cstring>
 #include <iostream>
+#include <limits>
 #include "../serializer.h"
 
 namespace hps {
@@ -12,6 +13,7 @@ constexpr size_t STREAM_INPUT_BUFFER_SIZE = 1 << 16;
 class StreamInputBuffer {
  public:
   StreamInputBuffer(std::istream& stream) : stream(&stream) {
+    stream.precision(std::numeric_limits<long double>::digits10 + 1);
     stream.seekg(0, stream.beg);
     load();
   }
