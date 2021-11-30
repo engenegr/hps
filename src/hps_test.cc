@@ -38,7 +38,7 @@ TEST(HpsTest, DoubleFromCharArray) {
 
 TEST(HpsTest, DoubleVectorFromCharArray) {
   std::vector<double> input;
-  const int n_elems = 1e6;
+  const int n_elems = 1 << 25;
   input.resize(n_elems);
   for (int i = 0; i < n_elems; i++) input[i] = DBL_MAX;
   const std::string str = hps::to_string(input);
@@ -81,7 +81,7 @@ TEST(HpsLargeTest, LargeStringVectorToAndFromString) {
 }
 
 TEST(HpsLargeTest, RepeatedToAndFromString) {
-  const std::vector<double> input(1 << 25, 1012343534.3);
+  const std::vector<double> input(1 << 25, DBL_MAX);
   std::vector<double> output;
   for (size_t i = 0; i < 1 << 18; i++) {
     const std::string str = hps::to_string(input);
